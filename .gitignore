@@ -1,0 +1,9 @@
+__pycache__
+.pytest_cache
+/.repo-reports/docs-preview
+.coverage
+.doctrees
+/venv
+/node_modules
+/package.json
+/package-lock.json

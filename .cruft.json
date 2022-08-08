@@ -1,0 +1,25 @@
+{
+    "template": "https://github.com/grintor/dev_env_cookiecutter.git",
+    "commit": "6f818e957f8e66f3a7319d27ac14c7969cba5591",
+    "checkout": null,
+    "skip": [
+        "README.md",
+        "tests",
+        "src",
+        "docs-src",
+        ".repo-reports",
+        ".repo-shields",
+        "docs",
+        "requirements.txt"
+    ],
+    "context": {
+        "cookiecutter": {
+            "project_name": "core",
+            "project_slug": "core",
+            "project_owner": "plasmacan",
+            "version": "0.0.1",
+            "_template": "https://github.com/grintor/dev_env_cookiecutter.git"
+        }
+    },
+    "directory": null
+}

@@ -1,0 +1,11 @@
+default: true
+MD003:
+  style: atx
+MD007:
+  indent: 4
+no-hard-tabs: true
+MD013:
+  line_length: 112
+MD030:
+  ul_single: 3
+  ul_multi: 3

@@ -1,0 +1,141 @@
+fail_fast: false
+exclude: |
+  (?x)^(
+      docs/ |
+      another/example/directory/to_exclude/
+  )|(?x)^(
+      example/file/to_exclude.py |
+      another/example/file/to_exclude.py
+  )$
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.2.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: fix-byte-order-marker
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+  - repo: https://github.com/myint/autoflake
+    rev: v1.4
+    hooks:
+      - id: autoflake
+        name: autoflake
+        args: ["--in-place", "--remove-unused-variables", "--remove-all-unused-imports"]
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        name: isort (python)
+
+  - repo: local
+    hooks:
+      - id: black
+        name: black
+        entry: black
+        language: python
+        additional_dependencies: [black==22.6.0]
+        types: [python]
+        args: ["--line-length", "112"]
+
+      - id: prettier
+        name: prettier
+        entry: prettier --write --list-different --ignore-unknown
+        language: node
+        types_or: [css, javascript, html, yaml, json, markdown]
+        additional_dependencies: [prettier@2.7.1]
+
+      - id: eslint
+        name: eslint
+        entry: eslint
+        language: node
+        types_or: [javascript]
+        additional_dependencies:
+          [eslint@8.15.0, eslint-config-prettier@8.5.0, eslint-plugin-no-unsanitized@4.0.1]
+        args: [--fix]
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.32.1
+    hooks:
+      - id: markdownlint-fix
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.2.0
+    hooks:
+      - id: name-tests-test
+        fail_fast: true # applies to name-tests-test as well as every hook below
+      - id: no-commit-to-branch
+        stages: [commit]
+
+  - repo: https://github.com/streetsidesoftware/cspell-cli
+    rev: v6.5.0
+    hooks:
+      - id: cspell
+        args: [--config, .cspell.yaml, --no-summary, --gitignore, --no-progress]
+        types_or: [css, javascript, html, markdown, python]
+
+  - repo: https://github.com/PyCQA/doc8
+    rev: v1.0.0
+    hooks:
+      - id: doc8
+        args: ["--max-line-length", "112", "--file-encoding", "utf-8"]
+
+  - repo: local
+    hooks:
+      - id: html5validator
+        name: html5validator
+        entry: html5validator
+        language: python
+        files: .*\.(html|hbs|jinja)$
+        additional_dependencies: [html5validator==0.4.2]
+
+      - id: stylelint
+        name: stylelint
+        entry: stylelint
+        language: node
+        files: \.(css|scss|sass)$
+        additional_dependencies:
+          [stylelint@14.9.1, stylelint-config-standard@25.0.0, stylelint-config-prettier@9.0.3]
+
+      - id: flake8
+        name: flake8
+        entry: flake8
+        language: python
+        types: [python]
+        args: [--config, .flake8.ini]
+        additional_dependencies:
+          [
+            flake8==5.0.4,
+            flake8-pytest-style==1.6.0,
+            flake8-bugbear==22.7.1,
+            flake8-comprehensions==3.10.0,
+            flake8-print==5.0.0,
+            darglint==1.8.1,
+          ]
+      # and maybe add flake8-simplify?
+
+      - id: restructuredtext-lint
+        exclude: ^docs-src/ # exclude docs src because that is sphinx rst not normal rst (doc8 is for sphinx)
+        name: rst lint
+        entry: rst-lint --encoding utf-8
+        additional_dependencies: [restructuredtext-lint==1.4.0]
+        types: [rst]
+        language: python
+
+      - id: bandit
+        name: bandit
+        entry: bandit
+        language: python
+        types: [python]
+        additional_dependencies: [bandit==1.7.4]
+        args: [--severity-level=high, --confidence-level=high]
+
+      - id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        verbose: true
+        types: [python]
+        args: [--rcfile, .pylintrc.ini, --score=n]

@@ -1,0 +1,24 @@
+parserOptions:
+  ecmaFeatures:
+    modules: false
+env:
+  es6: true
+  browser: true
+rules:
+  strict:
+    - error
+    - global
+  complexity:
+    - error
+    - max: 15
+  max-lines-per-function:
+    - error
+      # https://softwareengineering.stackexchange.com/a/27976
+    - max: 45
+  max-statements:
+    - error
+    - max: 45
+extends:
+  - eslint:recommended
+  - plugin:no-unsanitized/DOM
+  - prettier

@@ -1,0 +1,16 @@
+autoflake
+css
+markdownlint
+py
+pylint
+pytest
+rcfile
+coveragerc
+autosectionlabel
+sourcelink
+recommonmark
+globaltoc
+pylintrc
+capsys
+searchbox
+plasmacan

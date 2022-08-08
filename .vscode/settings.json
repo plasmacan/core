@@ -1,0 +1,82 @@
+{
+    //"files.autoSave": "off",
+    "editor.formatOnSave": true,
+
+    // replaced by stylelint
+    "css.validate": false,
+    "less.validate": false,
+    "scss.validate": false,
+
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": { "source.fixAll.eslint": true }
+    },
+
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    "[yaml]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    "[jsonc]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    "markdownlint.run": "onSave",
+    "[markdown]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+            "source.fixAll.markdownlint": true
+        },
+        "editor.wordWrap": "off"
+    },
+
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.python",
+        "editor.codeActionsOnSave": { "source.organizeImports": true }
+    },
+
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": ["--line-length", "112"],
+
+    "editor.rulers": [112],
+
+    "python.linting.enabled": true,
+    "python.linting.cwd": "${workspaceFolder}",
+
+    "python.linting.banditEnabled": true,
+    "python.linting.banditArgs": ["--severity-level=high", "--confidence-level=high"],
+
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": ["--config", ".flake8.ini"],
+
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintArgs": ["--rcfile", ".pylintrc.ini", "--score=n"],
+
+    "cSpell.customDictionaries": {
+        "custom-words": {
+            "name": "custom-words",
+            "path": "${workspaceRoot}/.dictionary.txt",
+            "description": "custom dictionary",
+            "addWords": true
+        }
+    },
+    "cSpell.useGitignore": true,
+
+    "editorconfig.generateAuto": false,
+
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": ["--no-cov"],
+    "python.testing.cwd": "${workspaceRoot}",
+    "stylelint.configFile": ".stylelintrc.yaml"
+}
