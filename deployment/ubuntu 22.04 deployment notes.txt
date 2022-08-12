@@ -1,0 +1,156 @@
+sudo snap install core
+sudo snap refresh core
+sudo snap install --classic certbot
+sudo snap set certbot trust-plugin-with-root=ok
+sudo snap install certbot-dns-cloudflare
+
+
+sudo mkdir -p /root/.secrets
+sudo nano /root/.secrets/cloudflare.ini
+	dns_cloudflare_api_token = xxxx
+sudo nano /root/.secrets/plasma.env
+	var1=111
+	var2=222
+sudo chmod 0700 /root/.secrets/
+sudo chmod 0400 /root/.secrets/cloudflare.ini
+sudo chmod 0400 /root/.secrets/plasma.env
+
+sudo certbot certonly --dns-cloudflare --dns-cloudflare-credentials /root/.secrets/cloudflare.ini -d plasmacan-dev.com,*.plasmacan-dev.com --preferred-challenges dns-01
+sudo systemctl status snap.certbot.renew.timer
+sudo nano /etc/letsencrypt/renewal-hooks/deploy/nginx_reload.sh
+	#!/bin/bash
+	systemctl reload nginx
+sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/nginx_reload.sh
+/etc/letsencrypt/renewal-hooks/deploy/nginx_reload.sh
+
+sudo apt install geoipupdate
+sudo nano /etc/GeoIP.conf
+	AccountID xxxx
+	LicenseKey xxxx
+	EditionIDs GeoLite2-Country
+sudo geoipupdate -v
+
+
+sudo crontab -e
+	# Run GeoIP database update every Tuesday at 02:00
+	0 2 * * 2 /usr/bin/geoipupdate
+
+# installing code-server
+sudo useradd -s /bin/bash -m -d /home/plasma -g www-data plasma
+curl -fsSL https://code-server.dev/install.sh | sh -s -- --dry-run
+curl -fsSL https://code-server.dev/install.sh | sh
+sudo systemctl enable --now code-server@plasma
+sudo cat /home/plasma/.config/code-server/config.yaml
+
+sudo -u plasma code-server \
+	--install-extension ms-python.python \
+	--install-extension streetsidesoftware.code-spell-checker \
+	--install-extension EditorConfig.EditorConfig \
+	--install-extension esbenp.prettier-vscode \
+	--install-extension dbaeumer.vscode-eslint \
+	--install-extension stylelint.vscode-stylelint \
+	--install-extension DavidAnson.vscode-markdownlint \
+	--install-extension alefragnani.Bookmarks
+
+sudo -u plasma code-server --uninstall-extension ms-toolsai.jupyter
+
+sudo apt-get install nginx
+sudo apt-get install libnginx-mod-http-headers-more-filter
+sudo rm /etc/nginx/sites-enabled/default
+sudo nano /etc/nginx/sites-available/plasmacan-dev.com
+	geoip2 /var/lib/GeoIP/GeoLite2-Country.mmdb {
+		auto_reload 1h;
+		$geoip2_data_country_code default=XX source=$remote_addr country iso_code;
+	}
+
+	proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=myzone0:10m inactive=24h max_size=1g;
+
+	server {
+		listen 80 default_server;
+		listen 443 ssl;
+
+		location / {
+			proxy_pass http://127.0.0.1:8080;
+			proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+			proxy_set_header Host $host;
+			proxy_set_header X-Forwarded-Proto $scheme;
+			proxy_set_header CF-IPCountry $geoip2_data_country_code;
+			proxy_set_header CF-Connecting-IP $remote_addr;
+			proxy_set_header CF-Visitor "{\"scheme\":\"$scheme\"}";
+			proxy_set_header CF-Ray $request_id-XXX;
+			more_set_headers 'Server: Plasma';
+			add_header CF-Cache-Status $upstream_cache_status;
+			add_header CF-Ray $request_id-XXX;
+			proxy_set_header X-Request-ID "";
+			proxy_buffering        on;
+			proxy_cache            myzone0;
+		}
+
+		ssl_certificate /etc/letsencrypt/live/plasmacan-dev.com/fullchain.pem;
+		ssl_certificate_key /etc/letsencrypt/live/plasmacan-dev.com/privkey.pem;
+	}
+
+	server {
+		listen 80;
+		listen 443 ssl;
+		server_name code.plasmacan-dev.com;
+
+		location / {
+			proxy_pass http://127.0.0.1:8080;
+			proxy_set_header Host $host;
+			proxy_set_header Upgrade $http_upgrade;
+			proxy_set_header Connection upgrade;
+			proxy_read_timeout 8h;
+			proxy_set_header Accept-Encoding gzip;
+		}
+
+		ssl_certificate /etc/letsencrypt/live/plasmacan-dev.com/fullchain.pem;
+		ssl_certificate_key /etc/letsencrypt/live/plasmacan-dev.com/privkey.pem;
+	}
+
+
+
+sudo ln -s /etc/nginx/sites-available/plasmacan-dev.com /etc/nginx/sites-enabled/
+
+sudo mkdir /var/cache/nginx
+sudo chown www-data:www-data /var/cache/nginx
+
+# test config:
+sudo nginx -t
+
+sudo systemctl restart nginx
+
+sudo apt-get install python3-pip
+pre-commit install
+
+
+sudo snap install node --channel=14/stable --classic
+sudo npm install --global eslint prettier stylelint markdownlint-cli
+
+sudo apt-get install default-jre
+
+
+sudo usermod -a -G www-data ubuntu # add ubuntu to www-data group
+cd /opt
+sudo git clone https://github.com/plasmacan/Core.git plasma-core
+cd /opt/plasma-core
+sudo chown plasma:www-data -R * # Let plasma be owner of subdirs
+sudo chown plasma:www-data -R . # Let plasma be owner of this dir
+sudo find . -type d -exec chmod 2775 {} \;  # Change directory permissions rwxr-xr-x
+sudo find . -type f -exec chmod 664 {} \;  # Change file permissions rw-r--r--
+sudo -u plasma -s
+	npm install --local eslint-config-prettier eslint-plugin-no-unsanitized stylelint-config-standard@25.0.0 stylelint-config-prettier@9.0.3
+	pip install -r requirements.txt
+	nano ~/.bashrc: (append)
+		export PATH="/home/plasma/.local/bin:$PATH"
+	exit
+sudo ln -s /opt/plasma-core/deployment/plasmacore.service /etc/systemd/system/plasmacore.service
+sudo systemctl enable plasmacore
+sudo systemctl start plasmacore
+sudo systemctl daemon-reload
+systemctl status plasmacore
+journalctl -u plasmacore -f
+
+git config --global --add safe.directory /opt/plasma-core
+
+sudo systemctl restart code-server@plasma

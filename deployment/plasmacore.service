@@ -1,0 +1,28 @@
+# cd /opt
+# git clone https://github.com/plasmacan/Core.git plasma-core
+# cd /opt/plasma-core
+# pip install cylinder apig_wsgi boto3
+# sudo ln -s /opt/plasma-core/deployment/plasmacore.service /etc/systemd/system/plasmacore.service
+# sudo systemctl enable plasmacore
+# sudo systemctl start plasmacore
+# sudo systemctl daemon-reload
+# systemctl status plasmacore
+# journalctl -u plasmacore -f
+
+[Unit]
+Description=Plasma Core Service
+Wants=dynamodb.service
+After=dynamodb.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=ubuntu
+WorkingDirectory=/opt/plasma-core/src
+EnvironmentFile=/root/.secrets/plasma.env
+ExecStart=/usr/bin/python3 /opt/plasma-core/src/plasma.py
+
+[Install]
+WantedBy=multi-user.target

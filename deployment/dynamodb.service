@@ -1,0 +1,30 @@
+# sudo mkdir /opt/dynamolocal
+# cd /opt/dynamolocal
+# sudo chown ubuntu .
+# wget http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.tar.gz
+# tar xzf dynamodb_local_latest.tar.gz
+# rm -f dynamodb_local_latest.tar.gz
+# sudo apt-get install default-jre
+# sudo ln -s /opt/plasma-core/deployment/dynamodb.service /etc/systemd/system/dynamodb.service
+# sudo systemctl enable dynamodb
+# sudo systemctl start dynamodb
+# sudo systemctl daemon-reload
+# systemctl status dynamodb
+# journalctl -u dynamodb -f
+
+[Unit]
+Description=DynamoDb Service
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=ubuntu
+WorkingDirectory=/opt/dynamolocal
+ExecStart=/usr/bin/java -Djava.library.path=/opt/dynamolocal/DynamoDBLocal_lib/ -jar /opt/dynamolocal/DynamoDBLocal.jar -dbPath /opt/dynamolocal -sharedDb -delayTransientStatuses
+
+[Install]
+WantedBy=multi-user.target
